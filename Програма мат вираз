@@ -1,0 +1,153 @@
+#include <iostream>
+#include <cmath>
+#include <string>
+#include <cctype>
+
+using namespace std;
+
+// Функція для обчислення факторіалу
+int factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}
+
+// Основний клас для парсингу і обчислення виразу
+class Calculator {
+private:
+    string expression; // Збереження виразу
+    size_t pos;        // Поточна позиція у виразі
+
+    // Пропуск пробілів у виразі
+    void skipSpaces() {
+        while (pos < expression.length() && isspace(expression[pos])) {
+            pos++;
+        }
+    }
+
+    // Парсер числа або факторіалу
+    double parseNumber() {
+        skipSpaces();
+        double result = 0;
+        bool hasDecimal = false;
+        double decimalPlace = 0.1;
+
+        // Читаємо цифри
+        while (pos < expression.length() && (isdigit(expression[pos]) || expression[pos] == '.')) {
+            if (expression[pos] == '.') {
+                hasDecimal = true;
+                pos++;
+                continue;
+            }
+            if (hasDecimal) {
+                result += (expression[pos] - '0') * decimalPlace;
+                decimalPlace /= 10;
+            } else {
+                result = result * 10 + (expression[pos] - '0');
+            }
+            pos++;
+        }
+
+        // Перевірка на факторіал
+        skipSpaces();
+        if (pos < expression.length() && expression[pos] == '!') {
+            pos++;
+            result = factorial(static_cast<int>(result));
+        }
+
+        return result;
+    }
+
+    // Парсер множення і ділення
+    double parseTerm() {
+        double result = parseFactor();
+
+        while (true) {
+            skipSpaces();
+            if (pos >= expression.length()) break;
+
+            if (expression[pos] == '*') {
+                pos++;
+                result *= parseFactor();
+            } else if (expression[pos] == '/') {
+                pos++;
+                double divisor = parseFactor();
+                if (divisor == 0) {
+                    throw runtime_error("Division by zero");
+                }
+                result /= divisor;
+            } else {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    // Парсер факторів (числа, дужки)
+    double parseFactor() {
+        skipSpaces();
+        if (pos < expression.length() && expression[pos] == '(') {
+            pos++; // Пропустити відкриту дужку
+            double result = parseExpression();
+            if (pos >= expression.length() || expression[pos] != ')') {
+                throw runtime_error("Missing closing parenthesis");
+            }
+            pos++; // Пропустити закриту дужку
+            return result;
+        } else {
+            return parseNumber();
+        }
+    }
+
+    // Парсер виразу (додавання і віднімання)
+    double parseExpression() {
+        double result = parseTerm();
+
+        while (true) {
+            skipSpaces();
+            if (pos >= expression.length()) break;
+
+            if (expression[pos] == '+') {
+                pos++;
+                result += parseTerm();
+            } else if (expression[pos] == '-') {
+                pos++;
+                result -= parseTerm();
+            } else {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+public:
+    // Конструктор
+    Calculator(const string& expr) : expression(expr), pos(0) {}
+
+    // Метод для запуску обчислення
+    double calculate() {
+        double result = parseExpression();
+        skipSpaces();
+        if (pos < expression.length()) {
+            throw runtime_error("Unexpected character at the end");
+        }
+        return result;
+    }
+};
+
+int main() {
+    cout << "Enter a mathematical expression: ";
+    string input;
+    getline(cin, input);
+
+    try {
+        Calculator calc(input);
+        double result = calc.calculate();
+        cout << "Result: " << result << endl;
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
