@@ -1,0 +1,123 @@
+#include <iostream>
+#include <cmath>
+#include <stack>
+#include <cstdlib> // для atof
+
+using namespace std;
+
+// Функція для обчислення факторіалу
+int factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}
+
+// Функція для обчислення ЗПН
+double evaluateRPN(char* expression) {
+    stack<double> operands;
+    char* token = strtok(expression, " "); // Розділяємо вираз на токени за пробілом
+
+    while (token != nullptr) {
+        if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
+            // Якщо токен - число
+            operands.push(atof(token)); // Перетворюємо в число і додаємо до стека
+        } else if (token[0] == '!') {
+            // Оператор факторіалу
+            if (operands.empty()) throw runtime_error("Missing operand for factorial");
+            double operand = operands.top();
+            operands.pop();
+            operands.push(factorial(static_cast<int>(operand)));
+        } else {
+            // Оператори +, -, *, /
+            if (operands.size() < 2) throw runtime_error("Not enough operands");
+            double b = operands.top(); operands.pop();
+            double a = operands.top(); operands.pop();
+
+            switch (token[0]) {
+                case '+': operands.push(a + b); break;
+                case '-': operands.push(a - b); break;
+                case '*': operands.push(a * b); break;
+                case '/':
+                    if (b == 0) throw runtime_error("Division by zero");
+                    operands.push(a / b);
+                    break;
+                default: throw runtime_error("Unknown operator");
+            }
+        }
+
+        token = strtok(nullptr, " "); // Отримуємо наступний токен
+    }
+
+    if (operands.size() != 1) throw runtime_error("Invalid RPN expression");
+    return operands.top(); // Повертаємо результат
+}
+
+// Функція для переведення інфіксного запису у ЗПН
+void infixToRPN(const char* infix, char* rpn) {
+    stack<char> operators;
+    int rpnIndex = 0;
+
+    for (int i = 0; infix[i] != '\0'; i++) {
+        char c = infix[i];
+
+        if (isdigit(c) || c == '.') {
+            // Якщо це число або десяткова крапка, додаємо до RPN
+            rpn[rpnIndex++] = c;
+        } else if (c == ' ') {
+            // Пропускаємо пробіли
+            continue;
+        } else {
+            // Якщо це оператор
+            rpn[rpnIndex++] = ' '; // Додаємо пробіл перед оператором
+            if (c == '(') {
+                operators.push(c);
+            } else if (c == ')') {
+                while (!operators.empty() && operators.top() != '(') {
+                    rpn[rpnIndex++] = operators.top();
+                    rpn[rpnIndex++] = ' ';
+                    operators.pop();
+                }
+                if (!operators.empty() && operators.top() == '(') {
+                    operators.pop();
+                }
+            } else {
+                // Для операторів +, -, *, /, !
+                while (!operators.empty() &&
+                       ((operators.top() == '*' || operators.top() == '/') ||
+                        (operators.top() == '+' || operators.top() == '-') && (c == '+' || c == '-'))) {
+                    rpn[rpnIndex++] = operators.top();
+                    rpn[rpnIndex++] = ' ';
+                    operators.pop();
+                }
+                operators.push(c);
+            }
+        }
+    }
+
+    // Додаємо всі залишкові оператори
+    while (!operators.empty()) {
+        rpn[rpnIndex++] = ' ';
+        rpn[rpnIndex++] = operators.top();
+        operators.pop();
+    }
+    rpn[rpnIndex] = '\0'; // Завершуємо рядок
+}
+
+int main() {
+    char infix[256];
+    char rpn[256];
+
+    cout << "Enter a mathematical expression: ";
+    cin.getline(infix, 256); // Зчитуємо вираз у інфіксному форматі
+
+    try {
+        infixToRPN(infix, rpn); // Перетворюємо у зворотну польську нотацію
+        cout << "RPN expression: " << rpn << endl;
+
+        double result = evaluateRPN(rpn); // Обчислюємо вираз
+        cout << "Result: " << result << endl;
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
