@@ -1,0 +1,176 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <numeric>
+#include <sstream>
+#include <queue>
+#include <map>
+#include <iomanip>
+
+using namespace std;
+
+// 1. Піфагорові трійки
+void pythagoreanTriplets(int n) {
+    for (int a = 1; a <= n; a++) {
+        for (int b = a; b <= n; b++) {
+            int c2 = a * a + b * b;
+            int c = sqrt(c2);
+            if (c * c == c2 && c <= n) {
+                cout << "(" << a << ", " << b << ", " << c << ")\n";
+            }
+        }
+    }
+}
+
+// 2. Трикутник Паскаля
+void pascalTriangle(int n) {
+    vector<vector<int>> triangle(n);
+    for (int i = 0; i < n; i++) {
+        triangle[i].resize(i + 1, 1);
+        for (int j = 1; j < i; j++) {
+            triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+        }
+        for (int val : triangle[i]) cout << val << " ";
+        cout << endl;
+    }
+}
+
+// 3. Решето Ератосфена
+void sieve(int n) {
+    vector<bool> prime(n + 1, true);
+    prime[0] = prime[1] = false;
+    for (int i = 2; i * i <= n; i++) {
+        if (prime[i]) {
+            for (int j = i * i; j <= n; j += i) prime[j] = false;
+        }
+    }
+    for (int i = 2; i <= n; i++) {
+        if (prime[i]) cout << i << " ";
+    }
+    cout << endl;
+}
+
+// 4. Розклад на прості множники
+void primeFactors(int n) {
+    for (int i = 2; i * i <= n; i++) {
+        while (n % i == 0) {
+            cout << i << " ";
+            n /= i;
+        }
+    }
+    if (n > 1) cout << n;
+    cout << endl;
+}
+
+// 5. Паліндроми
+bool isPalindrome(int x) {
+    string s = to_string(x), rev = s;
+    reverse(rev.begin(), rev.end());
+    return s == rev;
+}
+void palindromicSquares() {
+    for (int i = 1; i < 100; i++) {
+        if (isPalindrome(i) && isPalindrome(i * i)) {
+            cout << i << " ";
+        }
+    }
+    cout << endl;
+}
+
+// 6. Число словами
+string numberToWords(int n) {
+    vector<string> ones = {"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
+    vector<string> teens = {"ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"};
+    vector<string> tens = {"", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"};
+    string result;
+    if (n >= 100) {
+        result += ones[n / 100] + " hundred ";
+        n %= 100;
+    }
+    if (n >= 20) {
+        result += tens[n / 10] + " ";
+        n %= 10;
+    } else if (n >= 10) {
+        result += teens[n - 10] + " ";
+        n = 0;
+    }
+    result += ones[n];
+    return result;
+}
+
+// 7. Пари простих чисел
+void primePairs(int n) {
+    vector<bool> prime(2 * n + 1, true);
+    prime[0] = prime[1] = false;
+    for (int i = 2; i * i <= 2 * n; i++) {
+        if (prime[i]) {
+            for (int j = i * i; j <= 2 * n; j += i) prime[j] = false;
+        }
+    }
+    for (int i = n; i <= 2 * n - 2; i++) {
+        if (prime[i] && prime[i + 2]) {
+            cout << "(" << i << ", " << i + 2 << ")\n";
+        }
+    }
+}
+
+// 8. Редагування тексту
+void justifyText(string text, int n) {
+    istringstream words(text);
+    string word, line;
+    while (words >> word) {
+        if (line.size() + word.size() + 1 > n) {
+            cout << line << endl;
+            line = word;
+        } else {
+            if (!line.empty()) line += " ";
+            line += word;
+        }
+    }
+    if (!line.empty()) cout << line << endl;
+}
+
+// 9. Стеганографія
+void steganography(string text, string hidden) {
+    vector<int> binary;
+    for (char c : hidden) {
+        for (int i = 7; i >= 0; i--) {
+            binary.push_back((c >> i) & 1);
+        }
+    }
+    istringstream words(text);
+    string word;
+    int idx = 0;
+    while (words >> word) {
+        cout << word;
+        if (idx < binary.size()) cout << string(binary[idx++] + 1, ' ');
+        else cout << " ";
+    }
+    cout << endl;
+}
+
+// 10. Чарівні вектори
+void magicVectors(int n) {
+    vector<int> vec(n, 1);
+    do {
+        if (accumulate(vec.begin(), vec.end(), 0) == accumulate(vec.begin(), vec.end(), 1, multiplies<int>())) {
+            for (int x : vec) cout << x << " ";
+            cout << endl;
+        }
+    } while (next_permutation(vec.begin(), vec.end()));
+}
+
+// 11. Оптимальна столиця
+void optimalCapital(vector<pair<int, int>> cities) {
+    vector<int> x_coords, y_coords;
+    for (auto [x, y] : cities) {
+        x_coords.push_back(x);
+        y_coords.push_back(y);
+    }
+    sort(x_coords.begin(), x_coords.end());
+    sort(y_coords.begin(), y_coords.end());
+    int x = x_coords[x_coords.size() / 2];
+    int y = y_coords[y_coords.size() / 2];
+    cout << "(" << x << ", " << y << ")" << endl;
+}
