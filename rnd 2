@@ -1,0 +1,26 @@
+#include <iostream>
+#include <cstdlib>  
+#include <ctime>    
+
+int rand(int low, int high) {
+    if (low > high) {
+        std::swap(low, high);
+    }
+    return low + std::rand() % (high - low + 1);
+}
+
+int main() {
+    std::srand(std::time(0));
+    
+    int low, high;
+    std::cout << "Введіть нижню границю: ";
+    std::cin >> low;
+    std::cout << "Введіть верхню границю: ";
+    std::cin >> high;
+    
+    int randomNumber = rand(low, high);
+    std::cout << "Випадкове число: " << randomNumber << std::endl;
+
+    return 0;
+}
+
