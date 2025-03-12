@@ -1,0 +1,51 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << a + b << endl;
+    cout << a - b << endl;
+    cout << a * b << endl;
+    return 0;
+}
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    double A, B, C;
+    cin >> A >> B >> C;
+    cout << 2 * (A * B + B * C + A * C) << endl;
+    cout << A * B * C << endl;
+    return 0;
+}
+
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    const double pi = 3.14;
+    double R;
+    cin >> R;
+    cout << fixed << setprecision(2) << pi * R * R << endl;
+    cout << fixed << setprecision(2) << 2 * pi * R << endl;
+    return 0;
+}
+
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    float P, R;
+    int T;
+    cin >> P >> T >> R;
+    float I = (P * T * R) / 100;
+    cout << fixed << setprecision(2) << I << endl;
+    cout << (int)I << endl;
+    return 0;
+}
