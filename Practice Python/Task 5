@@ -1,0 +1,30 @@
+import datetime
+import sys
+
+class Formatter:
+    def __init__(self, fmt):
+        self.fmt = fmt
+
+    def format(self, msg):
+        now = datetime.datetime.now().strftime(self.fmt)
+        return f"[{now}] {msg}"
+
+class StreamHandler:
+    def __init__(self, stream):
+        self.stream = stream
+
+    def handle(self, msg):
+        print(msg, file=self.stream)
+
+class Logger:
+    def __init__(self, formatter):
+        self.formatter = formatter
+        self.handlers = []
+
+    def add_handler(self, handler):
+        self.handlers.append(handler)
+
+    def log(self, msg):
+        text = self.formatter.format(msg)
+        for h in self.handlers:
+            h.handle(text)
