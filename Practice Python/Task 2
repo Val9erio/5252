@@ -1,0 +1,6 @@
+import sys
+import datetime
+
+def log(text):
+    now = datetime.datetime.now()
+    print(f"[{now}] {text}", file=sys.stderr)
