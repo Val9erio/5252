@@ -1,0 +1,31 @@
+from fastapi import FastAPI, Header, HTTPException
+from dotenv import load_dotenv
+import os
+import instaloader
+
+load_dotenv()
+
+API_PASSWORD = os.getenv("API_PASSWORD")
+app = FastAPI(title="Instagram Info API")
+
+@app.get("/post-info")
+async def get_instagram_post_info(
+    shortcode: str,
+    x_api_key: str = Header(..., alias="X-API-Key")
+):
+    if x_api_key != API_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid or missing API Key")
+
+    try:
+        loader = instaloader.Instaloader()
+        post = instaloader.Post.from_shortcode(loader.context, shortcode)
+
+        return {
+            "author": post.owner_username,
+            "caption": post.caption,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date_utc.strftime("%Y-%m-%d %H:%M:%S")
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error retrieving post info: {e}")
