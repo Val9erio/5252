@@ -1,0 +1,2 @@
+git
+revert &lt;hash&gt; або git reset --hard &lt;hash&gt;
