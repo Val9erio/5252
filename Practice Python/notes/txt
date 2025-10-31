@@ -1,1 +1,2 @@
-
+git add notes.txt
+git commit -m &quot;Add notes file&quot;
