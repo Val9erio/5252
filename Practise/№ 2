@@ -1,0 +1,58 @@
+pip install flask
+
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+users = []
+
+
+@app.route("/users", methods=["GET", "POST"])
+def all_users():
+
+    if request.method == "GET":
+        return jsonify({
+            "status": "ok",
+            "data": users,
+            "message": "Список користувачів"
+        })
+
+    if request.method == "POST":
+        user = request.json
+        users.append(user)
+
+        return jsonify({
+            "status": "ok",
+            "data": user,
+            "message": "Користувач доданий"
+        })
+
+
+@app.route("/users/<int:id>", methods=["GET", "DELETE"])
+def one_user(id):
+
+    if id >= len(users):
+        return jsonify({
+            "status": "error",
+            "data": None,
+            "message": "Користувача нема"
+        })
+
+    if request.method == "GET":
+        return jsonify({
+            "status": "ok",
+            "data": users[id],
+            "message": "Ось користувач"
+        })
+
+    if request.method == "DELETE":
+        users.pop(id)
+        return jsonify({
+            "status": "ok",
+            "data": None,
+            "message": "Користувач видалений"
+        })
+
+
+app.run()
