@@ -1,0 +1,27 @@
+import requests
+
+print("GET запит:")
+
+url = "https://jsonplaceholder.typicode.com/posts/1"
+r = requests.get(url)
+
+print("Статус код:", r.status_code)
+print("Відповідь:")
+print(r.text)
+
+
+print("\nPOST запит:")
+
+url2 = "https://jsonplaceholder.typicode.com/posts"
+
+data = {
+    "title": "Test",
+    "body": "Hello world",
+    "userId": 1
+}
+
+r2 = requests.post(url2, json=data)
+
+print("Статус код:", r2.status_code)
+print("Відповідь:")
+print(r2.json())
