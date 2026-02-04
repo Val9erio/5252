@@ -1,15 +1,12 @@
-pip install python-dotenv
-
-API_KEY=12345
-DB_URL=localhost
-
+# main.py
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv("API_KEY")
 db_url = os.getenv("DB_URL")
+api_key = os.getenv("API_KEY")
 
-print("API KEY:", api_key)
-print("DB URL:", db_url)
+print(db_url)
+print(api_key)
+
