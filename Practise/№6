@@ -1,0 +1,117 @@
+from flask import Flask
+import psycopg2
+import os
+
+app = Flask(__name__)
+
+@app.route("/")
+def index():
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            database=os.getenv("POSTGRES_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD")
+        )
+        conn.close()
+        return "✅ Docker Flask + PostgreSQL: контейнери взаємодіють"
+    except Exception as e:
+        return f"❌ Помилка з'єднання з БД: {e}"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+
+===================== requirements.txt =====================
+flask
+psycopg2-binary
+
+
+===================== Dockerfile =====================
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py .
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+
+
+===================== docker-compose.yml =====================
+version: "3.9"
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      POSTGRES_DB: testdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+
+===================== .gitignore =====================
+__pycache__/
+*.pyc
+.env
+.vscode/
+.idea/
+
+
+===================== README.md =====================
+# Docker Flask CI Project
+
+## Опис
+Flask-застосунок, контейнеризований за допомогою Docker.
+Запуск через docker-compose з базою даних PostgreSQL.
+CI налаштований через GitHub Actions.
+
+## Запуск
+docker-compose up --build
+
+Відкрити у браузері:
+http://localhost:5000
+
+
+===================== .github/workflows/ci.yml =====================
+name: Python CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install flask psycopg2-binary
+
+      - name: Run test
+        run: |
+          python -c "import flask; print
